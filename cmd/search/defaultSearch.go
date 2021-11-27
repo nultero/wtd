@@ -18,40 +18,47 @@ func Default() {
 		tics.ThrowSys(Default, err)
 	}
 
+	im := ignores.BasicIgMap()
 	c := make(chan string)
-	search(here, c, true)
+	go search(here, c, &im)
 
-	// s := <-c
-	// lines := []string{}
+	lines := []string{}
 	for s := range c {
-		// lines = append(lines, s)
+		lines = append(lines, s)
 		fmt.Println(s)
 	}
 
-	// fmt.Println(lines)
+	fmt.Println(lines)
 
 }
 
-func search(dir string, c chan string, rootSearch bool) {
+func search(dir string, c chan string, ignoreMap *ignores.Ignore) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		tics.ThrowSys(search, err)
 	}
 
-	ignoreMap := ignores.BasicMap()
-
 	for _, f := range files {
 		if ignoreMap.NotExcluded(f.Name()) {
 
 			if f.IsDir() {
-				go search(dir+"/"+f.Name(), c, false)
+				subchan := make(chan string)
+				go search(dir+"/"+f.Name(), subchan, ignoreMap)
+				for s := range subchan {
+					c <- s
+				}
 
 			} else {
-				go readFile(dir, f.Name(), c)
+				subchan := make(chan string)
+				go readFile(dir, f.Name(), subchan)
+				for s := range subchan {
+					c <- s
+				}
 			}
 		}
 	}
 
+	defer close(c)
 }
 
 func readFile(dir, fname string, c chan string) {
@@ -65,8 +72,10 @@ func readFile(dir, fname string, c chan string) {
 
 	for i, ln := range lines {
 		if strings.Contains(ln, "TODO") {
-			s := "file <" + fname + "> contains TODO at line " + fmt.Sprint(i+1)
+			s := "<" + fname + "> contains TODO at line " + fmt.Sprint(i+1)
 			c <- s
 		}
 	}
+
+	close(c)
 }

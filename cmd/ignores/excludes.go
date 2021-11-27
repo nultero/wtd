@@ -4,7 +4,7 @@ type Ignore struct {
 	Map map[string]struct{}
 }
 
-func BasicMap() Ignore {
+func BasicIgMap() Ignore {
 	return Ignore{
 		Map: map[string]struct{}{
 			".git": {},
