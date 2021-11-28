@@ -14,8 +14,10 @@ type linkedLine struct {
 	Priority int
 }
 
-const LineSplitStr = "¿¿" // literally no one will use two of these in a comment that contains TODO
+const LineSplitStr = "¿¿" // literally no one will use two of these side-by-side in a comment that contains TODO
 // 100% safe to use a str delimiter
+// EXCEPT ON THIS FILE, because self-referencing this above line causes an err
+// I've added a debug flag so that wtf can be run on its own dir and not have problems
 
 func SortLines(lines []string, reversed *bool) []string {
 
@@ -48,8 +50,9 @@ func SortLines(lines []string, reversed *bool) []string {
 	lines = []string{}
 	for _, ln := range sl {
 		lines = append(lines, fmt.Sprintf(
-			"%vpriority: %v",
+			"%v%v: %v",
 			ln.Line,
+			tics.Magenta("priority"),
 			ln.Priority,
 		))
 	}

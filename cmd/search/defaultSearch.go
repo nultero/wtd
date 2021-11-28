@@ -13,7 +13,7 @@ import (
 
 // The default search behavior for scanning a directory's
 // scattered TODOOOOOOs.
-func Default(verbose *bool) []string {
+func Default(verbose, nostrip, debug, printAnyway *bool) []string {
 	here, err := os.Getwd()
 	if err != nil {
 		tics.ThrowSys(Default, err)
@@ -21,17 +21,21 @@ func Default(verbose *bool) []string {
 
 	im := ignores.BasicIgMap()
 	c := make(chan string)
-	go search(here, c, &im, verbose)
+	go search(here, c, &im, verbose, nostrip, debug)
 
 	lines := []string{}
 	for s := range c {
+		if *printAnyway {
+			fmt.Println(s)
+		}
+
 		lines = append(lines, s)
 	}
 
 	return lines
 }
 
-func search(dir string, c chan string, ignoreMap *ignores.Ignore, verbose *bool) {
+func search(dir string, c chan string, ignoreMap *ignores.Ignore, verbose, nostrip, debug *bool) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		tics.ThrowSys(search, err)
@@ -42,14 +46,14 @@ func search(dir string, c chan string, ignoreMap *ignores.Ignore, verbose *bool)
 
 			if f.IsDir() {
 				subchan := make(chan string)
-				go search(dir+"/"+f.Name(), subchan, ignoreMap, verbose)
+				go search(dir+"/"+f.Name(), subchan, ignoreMap, verbose, nostrip, debug)
 				for s := range subchan {
 					c <- s
 				}
 
 			} else {
 				subchan := make(chan string)
-				go readFile(dir, f.Name(), subchan, verbose)
+				go readFile(dir, f.Name(), subchan, verbose, nostrip, debug)
 				for s := range subchan {
 					c <- s
 				}
@@ -60,7 +64,7 @@ func search(dir string, c chan string, ignoreMap *ignores.Ignore, verbose *bool)
 	defer close(c)
 }
 
-func readFile(dir, fname string, c chan string, verbose *bool) {
+func readFile(dir, fname string, c chan string, verbose, nostrip, debug *bool) {
 	b, err := os.ReadFile(dir + "/" + fname)
 	if err != nil {
 		tics.ThrowSys(readFile, err)
@@ -72,29 +76,29 @@ func readFile(dir, fname string, c chan string, verbose *bool) {
 	for i, ln := range lines {
 		if strings.Contains(ln, "TODO") {
 
-			s := ""
+			s := fmt.Sprintf(
+				"<%v> line: %v, ",
+				tics.DarkBlue(fname),
+				i+1, // ln #
+			)
+
 			priorityOfOs := countOs(ln)
 
 			if *verbose {
-				s = fmt.Sprintf(
-					"<%v> line: %v, `%v`, %v%v",
-					tics.DarkBlue(fname),
-					i+1,                //ln #
-					ln,                 // verbose
-					sorts.LineSplitStr, // for processing later
-					priorityOfOs,
-				)
+				if *nostrip {
+					s += fmt.Sprintf("`%v`, ", ln)
 
-			} else {
-				s = fmt.Sprintf(
-					"<%v> line: %v, %v%v",
-					tics.DarkBlue(fname),
-					i+1, //ln #
-					sorts.LineSplitStr,
-					priorityOfOs,
-				)
+				} else {
+					ln = strings.TrimLeft(ln, " \t")
+					s += fmt.Sprintf("`%v`, ", ln)
+				}
 			}
 
+			if *debug {
+				s = strings.ReplaceAll(s, sorts.LineSplitStr, "")
+			}
+
+			s += fmt.Sprintf("%v%v", sorts.LineSplitStr, priorityOfOs)
 			c <- s
 		}
 	}
