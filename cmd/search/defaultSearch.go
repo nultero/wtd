@@ -78,7 +78,7 @@ func readFile(dir, fname string, c chan string, verbose, nostrip, debug *bool) {
 
 			s := fmt.Sprintf(
 				"<%v> line: %v, ",
-				tics.DarkBlue(fname),
+				tics.Make(fname).DarkBlue().Blue(),
 				i+1, // ln #
 			)
 

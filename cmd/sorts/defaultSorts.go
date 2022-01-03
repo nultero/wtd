@@ -52,7 +52,7 @@ func SortLines(lines []string, reversed *bool) []string {
 		lines = append(lines, fmt.Sprintf(
 			"%v%v: %v",
 			ln.Line,
-			tics.Magenta("priority"),
+			tics.Make("priority").Magenta().String(),
 			ln.Priority,
 		))
 	}

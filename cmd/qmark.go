@@ -20,6 +20,6 @@ var qLines = []string{
 // The print for no 'TODO' comments found, or else no matching arguments.
 func printQmark() {
 	for _, ln := range qLines {
-		fmt.Println(tics.Blue(ln))
+		fmt.Println(tics.Make(ln).Blue().String())
 	}
 }

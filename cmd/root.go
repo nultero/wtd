@@ -21,13 +21,13 @@ var SearchStr string
 
 var wtf string = fmt.Sprintf(
 	"%vhat %vhe %vix",
-	tics.Blue("w"),
-	tics.Blue("t"),
-	tics.Blue("f"),
+	tics.Make("w").Blue().String(),
+	tics.Make("t").Blue().String(),
+	tics.Make("f").Blue().String(),
 )
 
-var todo string = tics.Blue("TODO")
-var osOnTheEnd = tics.Blue("O")
+var todo string = tics.Make("TODO").Blue().String()
+var osOnTheEnd = tics.Make("O").Blue().String()
 
 var rootCmd = &cobra.Command{
 	Use: "wtf",
