@@ -35,7 +35,7 @@ func Default(verbose, nostrip, debug, printAnyway *bool) []string {
 	return lines
 }
 
-func search(dir string, c chan string, ignoreMap *ignores.Ignore, verbose, nostrip, debug *bool) {
+func search(dir string, c chan string, ignoreMap *ignores.IgnoreMap, verbose, nostrip, debug *bool) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		tics.ThrowSys(search, err)

@@ -1,18 +1,12 @@
 package ignores
 
-type Ignore struct {
-	Map map[string]struct{}
+type IgnoreMap map[string]struct{}
+
+func BasicIgMap() IgnoreMap {
+	return IgnoreMap{".git": {}}
 }
 
-func BasicIgMap() Ignore {
-	return Ignore{
-		Map: map[string]struct{}{
-			".git": {},
-		},
-	}
-}
-
-func (i *Ignore) NotExcluded(filename string) bool {
-	_, ok := i.Map[filename]
+func (i IgnoreMap) NotExcluded(filename string) bool {
+	_, ok := i[filename]
 	return !ok
 }

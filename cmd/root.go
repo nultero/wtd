@@ -9,14 +9,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Debug bool = false
-var Depth int = 3
-var NoConcurrency bool = false
-var NoStrip bool = false
-var PrintAnyway bool = false
-var Reverse bool = false
-var Verbose bool = false
-var SearchStr string
+var (
+	Debug         bool = false
+	Depth         int  = 3
+	NoConcurrency bool = false
+	NoStrip       bool = false
+	PrintAnyway   bool = false
+	Reverse       bool = false
+	Verbose       bool = false
+	SearchStr     string
+)
 
 // TODO write up a cachefile implementation so the file search takes less time
 

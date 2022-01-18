@@ -31,7 +31,7 @@ func NoConc(verbose, nostrip, debug, printAnyway *bool) []string {
 	return lines
 }
 
-func baseSearch(dir string, lines *[]string, ignoreMap *ignores.Ignore, verbose, nostrip, debug *bool) {
+func baseSearch(dir string, lines *[]string, ignoreMap *ignores.IgnoreMap, verbose, nostrip, debug *bool) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		tics.ThrowSys(search, err)
