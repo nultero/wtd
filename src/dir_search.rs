@@ -1,7 +1,4 @@
-use std::{
-    fs::{ReadDir},
-    io::Error,
-};
+use std::{fs::ReadDir, io::Error};
 
 // use crate::ignore::*;
 

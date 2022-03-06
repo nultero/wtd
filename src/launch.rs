@@ -1,6 +1,7 @@
 use std::fs::DirEntry;
 
 use crate::dir_search::*;
+use crate::search::*;
 // use crate::gitignore;
 
 const GITIGNORE: &'static str = ".gitignore";
@@ -13,12 +14,13 @@ pub fn find_todos() {
         let path = file.path();
         let path_str = path.to_str().unwrap();
         if path_str.ends_with(GITIGNORE) {
-            println!("yup a gitignore")
+            println!(">>>> found gitignore")
         } else {
-            println!("{} was not a gitignore", &path_str);
             v.push(file);
         }
     }
 
-    // search();
+    for f in v {
+        search(f);
+    }
 }

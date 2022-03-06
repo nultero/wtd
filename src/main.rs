@@ -2,8 +2,7 @@ use std::env;
 mod dir_search;
 mod ignore;
 mod launch;
-
-// use launch;
+mod search;
 
 fn main() {
     let args = env::args().skip(1);
