@@ -5,6 +5,7 @@ mod flags;
 mod fmt;
 mod ignore;
 mod launch;
+mod matches;
 mod search;
 
 fn main() {
