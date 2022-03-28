@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"wtf/out"
 )
@@ -15,17 +14,17 @@ func main() {
 
 	fts, ok := filesToSearch.([]string)
 
-	if !ok || len(fts) == 0 {
-		searchCwd()
+	if !ok || len(fts) == 0 { // do normal search
+		searchCwd(flags)
 
-	} else {
-		fmt.Println(fts)
+	} else { // do specific search if there are file args
+		searchCwd(flags, fts...)
 	}
 }
 
 func parseArgs(args []string) (flags, any) {
 	flags := defaultFlags()
-	searches := []string{}
+	filesToSearch := []string{}
 	const u3 uint8 = 3
 
 	for _, arg := range args {
@@ -46,13 +45,13 @@ func parseArgs(args []string) (flags, any) {
 			}
 
 		} else {
-			searches = append(searches, arg)
+			filesToSearch = append(filesToSearch, arg)
 		}
 	}
 
-	if len(searches) == 0 {
+	if len(filesToSearch) == 0 {
 		return flags, struct{}{}
 	} else {
-		return flags, searches
+		return flags, filesToSearch
 	}
 }
