@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 )
+
+const keywd = "TODO"
 
 // TODOOOOOO respect gitignores
 
@@ -20,34 +23,51 @@ func searchCwd(f flags, files ...string) {
 	}
 
 	matches := map[string][]match{}
-	searchDir(cwd, matches)
+	searchDir(cwd, matches, f)
+
+	// TODO impl all the prints
 }
 
-func searchDir(dir string, m map[string][]match) {
+func searchDir(dir string, m map[string][]match, fg flags) {
 	curDir, err := os.ReadDir(dir)
 	if err != nil {
 		panic(err)
 	}
 	for _, f := range curDir {
 		if !f.IsDir() {
-			searchFile(f.Name(), m)
+			searchFile(f.Name(), m, fg.verbose, fg.noStrip)
 		}
 	}
 }
 
-func searchFile(file string, m map[string][]match) {
+func searchFile(file string, m map[string][]match, verbosity uint8, nostrip bool) {
 	bytes, err := os.ReadFile(file)
 	if err != nil {
 		panic(err)
 	}
 
 	str := string(bytes)
-	ln := 0
-	for _, char := range str {
-		if char == '\n' {
-			ln++
-		}
-	} // clean up search funcs
+	spl := strings.Split(str, "\n")
+	mt := []match{}
 
-	// fmt.Println(ln, file)
+	for _, ln := range spl {
+		if strings.Contains(ln, keywd) {
+			// o := countOs(ln)
+		}
+	}
+
+	fmt.Printf("%v", mt)
+	// fmt.Println(file, ln, count)
+}
+
+func countOs(s string) int {
+
+	// tried to optimize this a bit, by slicing, counting,
+	// all a lot dumber than naive splitting
+	// lots of off-by-one errors
+
+	// TODOOOOOOOOOOOOOOOOOOOOooooo finish counting Os
+	// f**k it, I'll come back to this later fresh
+
+	return 5
 }
