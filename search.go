@@ -52,7 +52,8 @@ func searchFile(file string, m map[string][]match, verbosity uint8, nostrip bool
 
 	for _, ln := range spl {
 		if strings.Contains(ln, keywd) {
-			// o := countOs(ln)
+			o := countOs(ln)
+			fmt.Printf("file: %v, has %d os\n", file, o)
 		}
 	}
 
@@ -62,12 +63,33 @@ func searchFile(file string, m map[string][]match, verbosity uint8, nostrip bool
 
 func countOs(s string) int {
 
-	// tried to optimize this a bit, by slicing, counting,
-	// all a lot dumber than naive splitting
-	// lots of off-by-one errors
+	var (
+		i   int32 = 0
+		idx int32 = -1
+		c   int   = 0
+		l         = int32(len(s))
+	)
 
-	// TODOOOOOOOOOOOOOOOOOOOOooooo finish counting Os
-	// f**k it, I'll come back to this later fresh
+	for i < l-3 {
+		spl := s[i : i+4]
+		if spl == keywd {
+			idx = i + 3
+			break
+		}
+		i++
+	}
 
-	return 5
+	if idx != -1 {
+		var v uint8 = 79 // capital 'O' char byte
+		for idx < l {
+			if s[idx] != v {
+				break
+			}
+
+			c++
+			idx++
+		}
+	}
+
+	return c
 }

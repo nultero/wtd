@@ -2,10 +2,24 @@ package main
 
 import (
 	"os"
+	"runtime/pprof"
 	"wtf/out"
 )
 
 func main() {
+
+	f, err := os.Create("cpuprof")
+	if err != nil {
+		panic(err)
+	}
+
+	err = pprof.StartCPUProfile(f)
+	if err != nil {
+		panic(err)
+	}
+
+	defer pprof.StopCPUProfile()
+
 	flags, filesToSearch := parseArgs(os.Args[1:])
 	if flags.help {
 		out.PrintHelp()

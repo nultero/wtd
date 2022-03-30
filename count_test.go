@@ -10,7 +10,8 @@ func Test_CountOs(t *testing.T) {
 		" TODOO0OO)",      // 2
 		"1 TOD TODOOOooo", // 3
 		"TODOOOO",
-		"TODOOOOO\n", // 5
+		"TODOOOOO\n",    // 5
+		"    TODOOOOOO", // 6
 	}
 
 	for i, s := range testStrs {
