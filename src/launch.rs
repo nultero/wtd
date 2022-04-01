@@ -1,19 +1,21 @@
 use std::fs::DirEntry;
+use std::path::PathBuf;
 use crate::flags::Flags;
 use crate::matches;
 use crate::search::*;
-use std::{fs::ReadDir, io::Error};
+use std::{fs::ReadDir};
 // use crate::gitignore;
 
 const GITIGNORE: &'static str = ".gitignore";
 
-fn get_dir() -> Result<ReadDir, Error> {
-    let cwd = std::env::current_dir()?;
-    return cwd.read_dir();
+fn get_dir() -> (PathBuf, ReadDir) {
+    let pbuf = std::env::current_dir().unwrap();
+    let cwd = pbuf.read_dir().expect("could not read current dir");
+    return (pbuf, cwd);
 }
 
 pub fn find_todos(flags: Flags) {
-    let cwd = get_dir().expect("could not read current dir");
+    let (pbuf, cwd) = get_dir();
     let mut dir: Vec<DirEntry> = vec!();
 
     for file in cwd {
@@ -27,8 +29,10 @@ pub fn find_todos(flags: Flags) {
 
     let mut map = matches::Matches::new();
 
+    let path_name = pbuf.to_str().unwrap().to_owned();
+
     for f in dir {
-        search(f, &flags, &mut map);
+        search(path_name.to_string(), f, &flags, &mut map);
     }
 
     matches::print_matches(map);

@@ -11,11 +11,20 @@ use crate::{
 const TODO: &'static str = "TODO";
 const OCHAR: u8 = 79;
 
-pub fn search(f: DirEntry, flags: &Flags, matches: &mut Matches) {
-    let (f, fname, ferr) = get_pathbuf(&f);
+pub fn search(parent_dir: String, f: DirEntry, flags: &Flags, matches: &mut Matches) {
+    let (f, fname, _ferr) = get_pathbuf(&f);
 
     if !f.is_dir() {
-        let conts = read_to_string(f).expect(&ferr);
+
+        let mut conts = String::new();
+
+        let contents = read_to_string(f);
+        match contents {
+            Ok(c) => { conts = c },
+            Err(e) => { println!("{}: {}", &fname,  e) },
+        }
+
+
         for (i, line) in conts.lines().enumerate() {
             if line.contains(&TODO) {
                 let (count, _idx) = get_priority(line);
@@ -37,8 +46,29 @@ pub fn search(f: DirEntry, flags: &Flags, matches: &mut Matches) {
                 }
             }
         }
-    } else {
-        // recurse over subdir
+
+        
+    } else if f.is_dir() {
+        if fname == ".git" {
+            return;
+        }
+
+        let subpath = format!("{}/{}", parent_dir, fname);
+
+        let subdir = f.read_dir();
+
+        match subdir {
+            Ok(sub) => {
+                for d in sub {
+                    let d = d.unwrap();
+                    search(subpath.to_string(), d, flags, matches);
+                }
+            },
+
+            Err(_e) => {}
+        }
+
+        // TODO recurse over subdir
     }
 }
 

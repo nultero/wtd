@@ -33,4 +33,9 @@ impl Fmtr {
     pub fn red(&self, s: &str) -> String {
         return format!("\x1b[31;1m{}\x1b[0m", s);
     }
+    
+    pub fn underline(&self, s: &str) -> String {
+        return format!("\x1b[;1;4m{}\x1b[0m", s);
+    }
+
 }

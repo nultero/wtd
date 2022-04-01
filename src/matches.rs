@@ -16,7 +16,7 @@ pub fn print_matches(map: Matches) {
 
     // let vslice = vec!();
     for (k, v) in &map {
-        println!("{}:", k);
+        println!("{}:", f.underline(k));
         for lm in v.iter() {
 
             let mut pri = lm.priority.to_string();
