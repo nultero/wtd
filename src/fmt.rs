@@ -1,6 +1,3 @@
-
-pub struct Fmtr {}
-
 /*
 
 "darkblue": "\x1b[34;1;4m%v\x1b[0m",
@@ -17,25 +14,22 @@ pub struct Fmtr {}
 
 */
 
-impl Fmtr {
-    pub fn blue(&self, s: &str) -> String {
-        return format!("\x1b[34;1m{}\x1b[0m", s);
-    }
-    
-    pub fn yellow(&self, s: &str) -> String {
-        return format!("\x1b[33;1m{}\x1b[0m", s);
-    }
-    
-    pub fn orange(&self, s: &str) -> String {
-        return format!("\x1b[38;2;252;127;0m{}\x1b[0m", s);
-    }
-    
-    pub fn red(&self, s: &str) -> String {
-        return format!("\x1b[31;1m{}\x1b[0m", s);
-    }
-    
-    pub fn underline(&self, s: &str) -> String {
-        return format!("\x1b[;1;4m{}\x1b[0m", s);
-    }
+pub fn fmt_blue(s: &str) -> String {
+    return format!("\x1b[34;1m{}\x1b[0m", s);
+}
 
+pub fn fmt_yellow(s: &str) -> String {
+    return format!("\x1b[33;1m{}\x1b[0m", s);
+}
+
+pub fn fmt_orange(s: &str) -> String {
+    return format!("\x1b[38;2;252;127;0m{}\x1b[0m", s);
+}
+
+pub fn fmt_red(s: &str) -> String {
+    return format!("\x1b[31;1m{}\x1b[0m", s);
+}
+
+pub fn fmt_underline(s: &str) -> String {
+    return format!("\x1b[;1;4m{}\x1b[0m", s);
 }
