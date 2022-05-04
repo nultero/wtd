@@ -5,10 +5,11 @@ use std::{
 
 use crate::{
     flags::Flags,
+    fmt,
     matches::{LineMatch, Matches},
 };
 
-const TODO: &'static str = "TODO";
+pub const TODO: &'static str = "TODO";
 const OCHAR: u8 = 79;
 
 pub fn search(parent_dir: String, f: DirEntry, flags: &Flags, matches: &mut Matches) {
@@ -27,15 +28,24 @@ pub fn search(parent_dir: String, f: DirEntry, flags: &Flags, matches: &mut Matc
 
         for (i, line) in conts.lines().enumerate() {
             if line.contains(&TODO) {
-                let (count, _idx) = get_priority(line);
-                let tmp_str = String::from("");
+                let (count, idx) = get_priority(line);
+                let mut tmp_str = String::new();
 
-                if flags.verbose > 0 {
-                    println!("haven't got this far");
+                if flags.verbose == 3 {
+                    if !flags.nostrip {
+                        tmp_str = line.get(idx..line.len()).unwrap().to_owned();
+                        
+                    } else {
+                        tmp_str = line.to_owned();
+                    }
                 }
 
                 let line_num = (i + 1) as i32;
-                let lm = LineMatch{ line_no: line_num, priority: count, contents: tmp_str };
+                let lm = LineMatch{ 
+                    line_no: line_num, 
+                    priority: count, 
+                    contents: tmp_str 
+                };
 
                 if matches.contains_key(&fname) {
                     let v = matches.get_mut(&fname).unwrap();
@@ -60,19 +70,25 @@ pub fn search(parent_dir: String, f: DirEntry, flags: &Flags, matches: &mut Matc
         match subdir {
             Ok(sub) => {
                 for d in sub {
-                    let d = d.unwrap();
-                    search(subpath.to_string(), d, flags, matches);
+                    match d {
+                        Ok(d) => {
+                            search(subpath.to_string(), d, flags, matches);
+                        }
+
+                        Err(e) => {println!(
+                                "problem in subdir {}: {}",
+                                fmt::fmt_underline(&subpath),
+                                &e)}
+                    }
                 }
             },
 
             Err(_e) => {}
         }
-
-        // TODO recurse over subdir
     }
 }
 
-/// Sugar over unwrapping across a couple types. Also returns err msg.
+/// Sugar over unwrapping across a couple types. Also returns err msg template.
 fn get_pathbuf(f: &DirEntry) -> (PathBuf, String, String) {
     let n = f.file_name();
     let fname = n.to_str().unwrap();
@@ -84,17 +100,17 @@ fn get_pathbuf(f: &DirEntry) -> (PathBuf, String, String) {
 /// Counts the capital-O chars on the end of the first TODO on the matching found line.
 /// Also returns the index of the start of the TODO for capture for standard flag
 /// that strips left space/garbage.
-fn get_priority(line: &str) -> (i32, i32) {
+fn get_priority(line: &str) -> (i32, usize) {
     let mut count: i32 = 0;
     let bytes = line.as_bytes();
     let comp = TODO.as_bytes();
-    let mut idx: i32 = -1;
+    let mut idx: usize = usize::MIN;
 
     for (i, b) in bytes.iter().enumerate() {
         if b == &OCHAR && i > 2 {
             let slice = bytes.get(i - 3..i + 1).unwrap();
             if slice == comp {
-                idx = (i - 3) as i32;
+                idx = i - 3;
                 let mut i = i;
                 while i < bytes.len() && bytes[i] == OCHAR {
                     count += 1;

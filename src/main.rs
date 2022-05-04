@@ -13,11 +13,8 @@ fn main() {
     if args.len() == 0 {
         launch::find_todos(flags::standard_flags());
         
-    } else { // only need to parse some flags, don't really need clap
+    } else { // only need to parse some flags, don't really need clap / phosisticated parser
         let flags = parse_flags(args);
-
-        println!("{:?}", &flags.verbose);
-
         if !flags.help {
             launch::find_todos(flags);
         } else {
@@ -28,29 +25,53 @@ fn main() {
 
 fn parse_flags(args: Vec<String>) -> flags::Flags {
 
-    let helps: [String; 3] = [ 
+    let helps: [String; 5] = [ 
+        "h".to_string(), 
         "-h".to_string(), 
+        "help".to_string(), 
         "-help".to_string(), 
         "--help".to_string(),
     ];
 
-    let mut flg = flags::standard_flags();
+    let mut flagset = flags::standard_flags();
     for arg in &args {
+
+        let mut valid = false;
+
         if helps.contains(arg) {
-            flg.help = true;
+            flagset.help = true;
+            valid = true;
         }
 
-        if arg.contains("v") && flg.verbose != 3 {
-            flg.verbose = count(arg);
+        if arg.contains("-v") && flagset.verbose != 3 {
+            flagset.verbose = count_v(arg);
+            valid = true;
         }
 
+        if arg.contains("-n") {
+            flagset.nostrip = true;
+            valid = true;
+        }
+
+        if arg.contains("-r") {
+            flagset.reverse = true;
+            valid = true;
+        }
+
+        if !valid {
+            println!(
+                "{} arg '{}' unrecognized",
+                fmt::fmt_red("!!"),
+                fmt::fmt_red(arg),
+            );
+        }
     }
 
-    return flg;
+    return flagset;
 }
 
 #[allow(non_upper_case_globals)]
-fn count(arg: &String) -> i8 {
+fn count_v(arg: &String) -> i8 {
     let mut i: i8 = 0;
     const v: u8 = 118;
     for byte in arg.as_bytes() {

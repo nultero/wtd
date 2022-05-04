@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::fmt::*;
+use crate::search;
 
 pub type Matches = HashMap<String, Vec<LineMatch>>;
 
@@ -10,7 +11,39 @@ pub struct LineMatch {
     pub contents: String,
 }
 
-pub fn print_matches(map: Matches) {
+pub fn print_matches(map: Matches, verbosity: i8, reverse: bool) {
+
+    if verbosity == 0 {
+        let mut prio_map: HashMap<i32, &String> = HashMap::new();
+        for (k, lm) in &map {
+            let mut sum = 0;
+            for m in lm {
+                sum += m.priority;
+            }
+            prio_map.insert(sum, k);
+        }
+
+        let mut vals: Vec<&i32> = prio_map.keys().collect();
+        vals.sort();
+        if reverse {
+            vals.reverse();
+        }
+
+        for val in vals {
+            let fname = prio_map.get(val).unwrap();
+            println!(
+                "{}s in {}: {}",
+                fmt_orange(search::TODO),
+                fmt_underline(fname),
+                val
+            );
+        }
+
+    } else if verbosity != 0 {
+
+    }
+
+
 
     // let vslice = vec!();
     for (k, v) in &map {

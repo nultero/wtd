@@ -71,7 +71,7 @@ pub fn find_todos(flags: Flags) {
         }
     }
     
-    matches::print_matches(map);
+    matches::print_matches(map, flags.verbose, flags.reverse);
 }
 
 fn is_gitignore(file: &DirEntry) -> bool {

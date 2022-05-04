@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 pub struct Flags {
     pub help: bool,
     pub nostrip: bool,
