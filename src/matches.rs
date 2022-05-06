@@ -45,7 +45,13 @@ pub fn print_matches(map: Matches, verbosity: i8, reverse: bool) {
             );
 
         } else {
-            println!("{}:", fmt_underline(fname));
+
+            if verbosity == 1 {
+                println!("{}: (pri: {})", fmt_underline(fname), pv);
+            } else {
+                println!("{}:", fmt_underline(fname));
+            }
+
             let lm = map.get(fname.clone()).unwrap();
             for m in lm {
 
