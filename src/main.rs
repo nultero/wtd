@@ -36,75 +36,59 @@ fn parse_flags(args: Vec<String>) -> flags::Flags {
     let mut flagset = flags::standard_flags();
     for arg in &args {
 
-        let mut valid = false;
-
         if helps.contains(arg) {
             flagset.help = true;
-            valid = true;
+            break;
         }
 
-        if arg.contains("-v") && flagset.verbose != 3 {
-            flagset.verbose = count_v(arg);
-            valid = true;
-        }
-
-        if arg.contains("-n") {
-            flagset.nostrip = true;
-            valid = true;
-        }
-
-        if arg.contains("-r") {
-            flagset.reverse = true;
-            valid = true;
-        }
-
-        if !valid {
-            println!(
-                "{} arg '{}' unrecognized",
-                fmt::fmt_red("!!"),
-                fmt::fmt_red(arg),
-            );
+        let chars: Vec<char> = arg.chars().collect();
+        if chars[0] == '-' {
+            for c in &chars[1..] {
+                match c {
+                'n' => { flagset.nostrip = true }
+                'r' => { flagset.reverse = true }
+                's' => { flagset.short   = true }
+                _   => { unrecog_arg(c) }
+                }
+            }
+        } else {
+            unrecog_arg(arg);
         }
     }
-
     return flagset;
 }
 
-#[allow(non_upper_case_globals)]
-fn count_v(arg: &String) -> i8 {
-    let mut i: i8 = 0;
-    const v: u8 = 118;
-    for byte in arg.as_bytes() {
-        if byte == &v && i < 3 {
-            i += 1;
-        }
-    }
-    return i;
+fn unrecog_arg<T: std::fmt::Display>(arg: T) {
+    println!(
+        "{} arg '{}' unrecognized",
+        fmt::fmt_red(&"!!"),
+        fmt::fmt_red(&arg),
+    );
 }
 
 fn print_help() {
-    let wtf = "wtf".to_string();
+    let wtf = "wtd".to_string();
     let bluewtf = fmt::fmt_blue(&wtf);
-    println!("{} -- {}here {}o {}ix", 
+    println!("{} -- {}hat {}o {}o", 
         bluewtf,
-        fmt::fmt_blue(&wtf.chars().nth(0).unwrap().to_string()), 
-        fmt::fmt_blue(&wtf.chars().nth(1).unwrap().to_string()), 
-        fmt::fmt_blue(&wtf.chars().nth(2).unwrap().to_string()), 
+        fmt::fmt_blue(&'w'), 
+        fmt::fmt_blue(&'t'), 
+        fmt::fmt_blue(&'d'), 
     );
 
-    println!("usage: wtf [OPTION]");
+    println!("usage: wtd [OPTION]");
 
-    let t = fmt::fmt_orange("TODO");
-    let o = fmt::fmt_orange("O");
+    let t = fmt::fmt_orange(&"TODO");
+    let o = fmt::fmt_orange(&"O");
 
     println!("searches for '{}'s in files", t);
     println!(" (each {} having a priority based on its number of {}s)", t, o);
 
-    let n = fmt::fmt_blue("-n");
-    let r = fmt::fmt_blue("-r");
-    let v = fmt::fmt_blue("-v");
-    let vv = fmt::fmt_blue("-vv");
-    let vvv = fmt::fmt_blue("-vvv");
+    let n = fmt::fmt_blue(&"-n");
+    let r = fmt::fmt_blue(&"-r");
+    let v = fmt::fmt_blue(&"-v");
+    let vv = fmt::fmt_blue(&"-vv");
+    let vvv = fmt::fmt_blue(&"-vvv");
 
     println!("\noptions:");
 

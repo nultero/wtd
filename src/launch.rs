@@ -4,8 +4,7 @@ use std::path::PathBuf;
 use crate::flags::Flags;
 use crate::matches;
 use crate::search::*;
-use std::{fs::ReadDir};
-// use crate::gitignore;
+use std::fs::ReadDir;
 
 const GITIGNORE: &'static str = ".gitignore";
 
