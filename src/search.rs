@@ -7,38 +7,69 @@ use std::{
 use crate::{
     flags::Flags,
     fmt,
-    matches::{LineMatch, Matches},
+    matches::{LineMatch, Matches}, launch::Excludes,
 };
 
 pub const TODO: &'static str = "TODO";
 const OCHAR: u8 = 79;
 
+pub fn search_dir<T>(
+    dir: Vec<DirEntry>,
+    flags: &Flags,
+    matches: &mut Matches,
+    path_name: String,
+    ig: T, 
+) 
+where T: Excludes
+{
+    for f in dir {
+        let excluded = ig.is_excluded(f.path().as_path());
+        match excluded {
+            Ok(excluded) => {
+                if !excluded {
+                    search(path_name.to_string(), f, &flags, matches);
+                }
+            },
+            Err(_) => {}, 
+        }
+    }
+}
+
 pub fn search(parent_dir: String, f: DirEntry, flags: &Flags, matches: &mut Matches) {
-    let (f, fname, _ferr) = get_pathbuf(&f);
+
+    let (f, fname, ferr) = get_pathbuf(&f);
+    if ferr.len() != 0 {
+        println!("{}", ferr);
+        return;
+    }
 
     if !f.is_dir() {
 
         let mut conts = String::new();
-
         let contents = read_to_string(f);
         match contents {
             Ok(c) => { conts = c },
-            Err(e) => { println!("{}: {}", &fname,  e) },
+            Err(e) => { 
+                println!("{}: {}", &fname,  e); 
+                return; 
+            },
         }
 
 
         for (i, line) in conts.lines().enumerate() {
             if line.contains(&TODO) {
                 let (count, idx) = get_priority(line);
+                
                 let mut tmp_str = String::new();
-
-                if flags.verbose == 3 {
-                    if !flags.nostrip {
-                        tmp_str = line.get(idx..line.len()).unwrap().to_owned();
-                        
-                    } else {
-                        tmp_str = line.to_owned();
+                if !flags.nostrip {
+                    let opt = line.get(idx..line.len());
+                    match opt {
+                        Some(ts) => { tmp_str = ts.to_string(); }
+                        None => { continue; }
                     }
+                    
+                } else {
+                    tmp_str = line.to_owned();
                 }
 
                 let line_num = (i + 1) as i32;
@@ -49,7 +80,12 @@ pub fn search(parent_dir: String, f: DirEntry, flags: &Flags, matches: &mut Matc
                 };
 
                 if matches.contains_key(&fname) {
-                    let v = matches.get_mut(&fname).unwrap();
+                    let v: &mut Vec<LineMatch>;
+                    let opt = matches.get_mut(&fname);
+                    match opt {
+                        Some(val) => { v = val; }
+                        None => { continue; }
+                    }
                     v.push(lm);
                 } else {
                     let v = vec!(lm);
@@ -89,11 +125,16 @@ pub fn search(parent_dir: String, f: DirEntry, flags: &Flags, matches: &mut Matc
     }
 }
 
-/// Sugar over unwrapping across a couple types. Also returns err msg template.
+
 fn get_pathbuf(f: &DirEntry) -> (PathBuf, String, String) {
     let n = f.file_name();
-    let fname = n.to_str().unwrap();
-    let ferr = format!("could not read/open {}", fname);
+    let mut fname = String::new();
+    let mut ferr = String::new();
+    let opt = n.to_str();
+    match opt {
+        Some(s) => { fname = s.to_owned(); }
+        None => { ferr = format!("could not read/open {}", fname)}
+    }
     let pathbuf = f.path().canonicalize().expect(&ferr);
     return (pathbuf, fname.to_owned(), ferr);
 }
@@ -109,7 +150,13 @@ fn get_priority(line: &str) -> (i32, usize) {
 
     for (i, b) in bytes.iter().enumerate() {
         if b == &OCHAR && i > 2 {
-            let slice = bytes.get(i - 3..i + 1).unwrap();
+            let slice: &[u8];
+            let opt = bytes.get(i - 3..i + 1);
+            match opt {
+                Some(bytes) => { slice = bytes; }
+                None => { break;}
+            }
+            
             if slice == comp {
                 idx = i - 3;
                 let mut i = i;
