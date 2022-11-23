@@ -25,7 +25,6 @@ fn abspath_from_direntry(de: &DirEntry) -> String {
             return s.to_owned();
         }
         None => {
-            println!("fuck");
             panic!("issue getting absolute paths");
         }
     }
@@ -76,7 +75,6 @@ pub fn find_todos(flags: Flags) {
     match opt {
         Some(s) => { path_name = s.to_owned(); }
         None => {
-            println!("what the fuck");
             panic!("not able to convert pathbuf properly");
         }
     }
